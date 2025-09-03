@@ -4,8 +4,9 @@ on:
   push:
     branches: [ master ]
     paths:
-      - 'docker-compose.yml'
+      - 'docker-compose.yaml'
       - 'deploy.sh'
+      - '.github/workflows/auto-deploy-compose.yaml'
   workflow_dispatch:
 
 jobs:
@@ -35,7 +36,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           source: |
-            docker-compose.yml
+            docker-compose.yaml
             deploy.sh
           target: /ru/asem/bot
           overwrite: true
