@@ -1,0 +1,53 @@
+name: deploy-compose
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'docker-compose.yml'
+      - 'deploy.sh'
+  workflow_dispatch:
+
+jobs:
+  ssh-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ssh check
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          debug: true
+          script: |
+            whoami
+            hostname
+            uptime
+  upload-and-deploy:
+    runs-on: ubuntu-latest
+    needs: ssh-test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Upload files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: |
+            docker-compose.yml
+            deploy.sh
+          target: /ru/asem/bot
+          overwrite: true
+      - name: Deploy
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -euxo pipefail
+            cd /ru/asem/bot
+            chmod +x deploy.sh
+            ./deploy.sh

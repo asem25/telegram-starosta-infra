@@ -1,0 +1,76 @@
+networks:
+  appnet: { }
+
+services:
+  backend:
+    image: ghcr.io/${GH_OWNER}/${REPO_NAME}-backend:${BACK_TAG:-latest}
+    pull_policy: always
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      key.api: ${API_KEY}
+      semester.start: 01.09.2025
+    mem_limit: "150m"
+    mem_reservation: "100m"
+    cpus: "0.3"
+    memswap_limit: "512m"
+    oom_kill_disable: false
+    healthcheck:
+      test: [ "CMD-SHELL","curl -f http://localhost:8081/api/v1/check || exit 1" ]
+      interval: 300s
+      timeout: 3s
+      retries: 3
+      start_period: 300s
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [ appnet ]
+
+  frontend:
+    image: ghcr.io/${GH_OWNER}/${REPO_NAME}-fronted:${FRONT_TAG:-latest}
+    pull_policy: always
+    restart: unless-stopped
+    cpus: "0.4"
+    mem_limit: "150m"
+    mem_reservation: "100m"
+    memswap_limit: "512m"
+    environment:
+      api.url: ${BACKEND_URL:-http://backend:8081/api/v1}
+      api.key: ${API_KEY}
+      bot.token: ${bot_token}
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8080/ || exit 1" ]
+      interval: 60s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+    networks: [ appnet ]
+
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    cpus: "0.30"
+    mem_limit: "200m"
+    mem_reservation: "150m"
+    memswap_limit: "3g"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL","pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 600s
+      timeout: 5s
+      retries: 5
+    networks: [ appnet ]
+volumes:
+  pgdata:
