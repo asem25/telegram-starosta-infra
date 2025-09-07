@@ -14,7 +14,13 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       key.api: ${API_KEY}
-      semester.start: 01.09.2025
+      semester.start: ${semester.start}
+      calendar.student.startYear: ${calendar.student.startYear}
+      calendar.student.endYear: ${calendar.student.endYear}
+      calendar.student.startMonth: ${calendar.student.startMonth}
+      calendar.student.endMonth: ${calendar.student.endMonth}
+      calendar.student.startDayOfMonth: ${calendar.student.startDayOfMonth}
+      calendar.student.endDayOfMonth: ${calendar.student.endDayOfMonth}
     mem_limit: "150m"
     mem_reservation: "100m"
     cpus: "0.3"
