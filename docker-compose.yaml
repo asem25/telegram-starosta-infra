@@ -21,9 +21,9 @@ services:
       calendar.student.endMonth: ${calendar_student_endMonth}
       calendar.student.startDayOfMonth: ${calendar_student_startDayOfMonth}
       calendar.student.endDayOfMonth: ${calendar_student_endDayOfMonth}
-    mem_limit: "150m"
+    mem_limit: "250m"
     mem_reservation: "100m"
-    cpus: "0.3"
+    cpus: "0.4"
     memswap_limit: "512m"
     oom_kill_disable: false
     healthcheck:
@@ -41,7 +41,7 @@ services:
     image: ghcr.io/${GH_OWNER}/${REPO_NAME}-fronted:${FRONT_TAG:-latest}
     pull_policy: always
     restart: unless-stopped
-    cpus: "0.4"
+    cpus: "0.5"
     mem_limit: "150m"
     mem_reservation: "100m"
     memswap_limit: "512m"
@@ -63,8 +63,8 @@ services:
   postgres:
     image: postgres:16
     restart: unless-stopped
-    cpus: "0.30"
-    mem_limit: "200m"
+    cpus: "0.10"
+    mem_limit: "100m"
     mem_reservation: "150m"
     memswap_limit: "3g"
     environment:
