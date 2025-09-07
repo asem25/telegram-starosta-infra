@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cd /ru/asem/bot
+cd /ru/asem/bot/telegram-starosta-infra
 
 docker compose config >/dev/null
 
