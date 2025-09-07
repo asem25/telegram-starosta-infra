@@ -65,7 +65,7 @@ services:
     restart: unless-stopped
     cpus: "0.10"
     mem_limit: "100m"
-    mem_reservation: "150m"
+    mem_reservation: "50m"
     memswap_limit: "3g"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
