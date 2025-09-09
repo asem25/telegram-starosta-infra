@@ -21,10 +21,10 @@ services:
       calendar.student.endMonth: ${calendar_student_endMonth}
       calendar.student.startDayOfMonth: ${calendar_student_startDayOfMonth}
       calendar.student.endDayOfMonth: ${calendar_student_endDayOfMonth}
-    mem_limit: "250m"
-    mem_reservation: "100m"
+    mem_limit: "512m"
+    mem_reservation: "384m"
     cpus: "0.4"
-    memswap_limit: "512m"
+    memswap_limit: "2g"
     oom_kill_disable: false
     healthcheck:
       test: [ "CMD-SHELL","curl -f http://localhost:8081/api/v1/check || exit 1" ]
@@ -42,9 +42,9 @@ services:
     pull_policy: always
     restart: unless-stopped
     cpus: "0.5"
-    mem_limit: "150m"
-    mem_reservation: "100m"
-    memswap_limit: "512m"
+    mem_limit: "384m"
+    mem_reservation: "150m"
+    memswap_limit: "1g"
     environment:
       api.url: ${BACKEND_URL:-http://backend:8081/api/v1}
       api.key: ${API_KEY}
@@ -66,7 +66,7 @@ services:
     cpus: "0.10"
     mem_limit: "100m"
     mem_reservation: "50m"
-    memswap_limit: "3g"
+    memswap_limit: "1g"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
