@@ -14,11 +14,17 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       key.api: ${API_KEY}
-      semester.start: 01.09.2025
-    mem_limit: "150m"
-    mem_reservation: "100m"
-    cpus: "0.3"
-    memswap_limit: "512m"
+      semester.start: ${semester_start}
+      calendar.student.startYear: ${calendar_student_startYear}
+      calendar.student.endYear: ${calendar_student_endYear}
+      calendar.student.startMonth: ${calendar_student_startMonth}
+      calendar.student.endMonth: ${calendar_student_endMonth}
+      calendar.student.startDayOfMonth: ${calendar_student_startDayOfMonth}
+      calendar.student.endDayOfMonth: ${calendar_student_endDayOfMonth}
+    mem_limit: "512m"
+    mem_reservation: "384m"
+    cpus: "0.4"
+    memswap_limit: "2g"
     oom_kill_disable: false
     healthcheck:
       test: [ "CMD-SHELL","curl -f http://localhost:8081/api/v1/check || exit 1" ]
@@ -35,10 +41,10 @@ services:
     image: ghcr.io/${GH_OWNER}/${REPO_NAME}-fronted:${FRONT_TAG:-latest}
     pull_policy: always
     restart: unless-stopped
-    cpus: "0.4"
-    mem_limit: "150m"
-    mem_reservation: "100m"
-    memswap_limit: "512m"
+    cpus: "0.5"
+    mem_limit: "384m"
+    mem_reservation: "150m"
+    memswap_limit: "1g"
     environment:
       api.url: ${BACKEND_URL:-http://backend:8081/api/v1}
       api.key: ${API_KEY}
@@ -57,10 +63,10 @@ services:
   postgres:
     image: postgres:16
     restart: unless-stopped
-    cpus: "0.30"
-    mem_limit: "200m"
-    mem_reservation: "150m"
-    memswap_limit: "3g"
+    cpus: "0.10"
+    mem_limit: "100m"
+    mem_reservation: "50m"
+    memswap_limit: "1g"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
