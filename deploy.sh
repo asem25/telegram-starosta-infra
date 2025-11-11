@@ -4,7 +4,7 @@ cd /ru/asem/bot/telegram-starosta-infra
 
 docker compose config >/dev/null
 
-# postgres -> backend -> frontend из за нехватки ресурсов
+# postgres -> backend -> frontend
 docker compose up -d postgres
 for i in {1..50}; do
   s=$(docker inspect -f '{{.State.Health.Status}}' $(docker compose ps -q postgres) 2>/dev/null || echo "")
