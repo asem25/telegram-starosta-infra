@@ -24,11 +24,11 @@ for i in {1..50}; do
   s=$(docker inspect -f '{{.State.Health.Status}}' "$(docker compose ps -q backend)" 2>/dev/null || echo "")
   echo "Backend health: $s"
   [ "$s" = "healthy" ] && break
-  sleep 3
+  sleep 20
 done
 
 if [ "$s" != "healthy" ]; then
-  echo "Backend is not healthy"
+  echo "Backend is not healthy. Time is over"
   docker compose logs backend
   exit 1
 fi
