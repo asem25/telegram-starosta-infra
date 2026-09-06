@@ -154,7 +154,9 @@ database role password separately before updating the file.
 The backend Compose service is tuned for a VPS with about 600 MB of RAM. Its JVM
 uses Serial GC, starts with a 64 MB heap, has a 160 MB maximum heap, and runs in
 a container limited to 360 MB. The datasource pool and Tomcat worker limit are
-also reduced. This trades request concurrency for predictable memory use.
+also reduced. PostgreSQL is limited to 160 MB, uses 32 MB of shared buffers, and
+accepts at most 10 simultaneous connections. This trades request concurrency
+and startup speed for predictable memory use.
 
 Before applying the low-memory configuration, stop the existing project
 containers. Do not add `--volumes` or `-v`: the PostgreSQL volume must remain.
@@ -178,6 +180,11 @@ Upload the new `docker-compose.yaml`, then start the deployment again:
 ./deploy.sh ghcr.io/<github-owner>/<backend-repository> latest
 docker stats --no-stream
 ```
+
+On a 600 MB VPS, the first startup and Flyway/Hibernate initialization may take
+up to 30 minutes. The deployment script and container healthcheck use an extended
+startup window for this reason. Do not launch a second deployment while the
+first one is still running.
 
 If the backend still restarts, inspect whether it was killed by the kernel and
 read only the latest application logs:

@@ -7,6 +7,17 @@ services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
+    mem_limit: 160m
+    command:
+      - postgres
+      - -c
+      - shared_buffers=32MB
+      - -c
+      - work_mem=1MB
+      - -c
+      - maintenance_work_mem=16MB
+      - -c
+      - max_connections=10
     env_file:
       - ${PROD_ENV_FILE:-prod.env}
     ports:
@@ -63,8 +74,8 @@ services:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8081/api/v1/check || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 30
-      start_period: 60s
+      retries: 60
+      start_period: 20m
     networks:
       - appnet
 

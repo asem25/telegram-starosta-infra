@@ -75,8 +75,8 @@ wait_until_healthy() {
 wait_until_healthy postgres 30 3
 
 "${compose[@]}" pull backend
-"${compose[@]}" up -d --no-deps --force-recreate backend
-wait_until_healthy backend 40 5
+"${compose[@]}" up -d --force-recreate backend
+wait_until_healthy backend 360 5
 
 "${compose[@]}" ps
 docker image prune -f >/dev/null
