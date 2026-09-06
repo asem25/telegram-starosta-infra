@@ -5,8 +5,9 @@ Production deployment is split across two servers:
 - the backend server runs PostgreSQL and the Spring Boot backend;
 - the mini-app server runs the Telegram Mini App container.
 
-Both application ports are bound to `127.0.0.1` and are expected to be exposed
-through an HTTPS reverse proxy already configured on each server.
+The backend bind address is configured through `BACKEND_BIND_ADDRESS`. The
+backend example uses `0.0.0.0`, making port 8081 reachable through every VPS
+network interface. PostgreSQL remains bound to `127.0.0.1` and is not public.
 
 ## Initial server setup
 
@@ -112,9 +113,25 @@ curl --fail http://127.0.0.1:8081/api/v1/check
 docker compose --env-file prod.env -f docker-compose.yaml logs --tail 100 backend
 ```
 
-The backend listens only on `127.0.0.1:8081`. Configure the HTTPS reverse proxy
-on the VPS to forward the public backend domain to `http://127.0.0.1:8081`, then
-verify the public endpoint:
+With `BACKEND_BIND_ADDRESS=0.0.0.0`, open TCP port 8081 in both the VPS firewall
+and any provider-level firewall or security group. Then verify the endpoint from
+another device:
+
+```bash
+curl --fail http://<backend-server>:8081/api/v1/check
+```
+
+Fetch a group calendar while safely URL-encoding its name:
+
+```bash
+curl --fail --get 'http://<backend-server>:8081/api/v1/schedule/semester/feed' \
+  --data-urlencode 'groupName=<group-name>' \
+  --output schedule.ics
+```
+
+The port is publicly reachable without TLS. For regular use, configure an HTTPS
+reverse proxy and change `BACKEND_BIND_ADDRESS` back to `127.0.0.1`. The public
+calendar endpoint can then be checked through the domain:
 
 ```bash
 curl --fail https://<backend-domain>/api/v1/check
