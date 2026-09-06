@@ -149,6 +149,45 @@ survives container recreation. Changing `POSTGRES_PASSWORD` in `prod.env` does
 not change the password already stored in an initialized database; rotate the
 database role password separately before updating the file.
 
+### Low-memory VPS
+
+The backend Compose service is tuned for a VPS with about 600 MB of RAM. Its JVM
+uses Serial GC, starts with a 64 MB heap, has a 160 MB maximum heap, and runs in
+a container limited to 360 MB. The datasource pool and Tomcat worker limit are
+also reduced. This trades request concurrency for predictable memory use.
+
+Before applying the low-memory configuration, stop the existing project
+containers. Do not add `--volumes` or `-v`: the PostgreSQL volume must remain.
+
+```bash
+cd /ru/asem/bot/telegram-starosta-infra
+docker compose --env-file prod.env -f docker-compose.yaml down --timeout 30
+docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'
+```
+
+If an older Compose project name was used and its containers remain in the
+second command, stop those specific backend and PostgreSQL containers by name:
+
+```bash
+docker stop <old-backend-container> <old-postgres-container>
+```
+
+Upload the new `docker-compose.yaml`, then start the deployment again:
+
+```bash
+./deploy.sh ghcr.io/<github-owner>/<backend-repository> latest
+docker stats --no-stream
+```
+
+If the backend still restarts, inspect whether it was killed by the kernel and
+read only the latest application logs:
+
+```bash
+docker inspect "$(docker compose --env-file prod.env -f docker-compose.yaml ps -q backend)" \
+  --format 'OOMKilled={{.State.OOMKilled}} ExitCode={{.State.ExitCode}}'
+docker compose --env-file prod.env -f docker-compose.yaml logs --tail 200 backend
+```
+
 ## GitHub configuration
 
 Configure these secrets in the infrastructure repository:

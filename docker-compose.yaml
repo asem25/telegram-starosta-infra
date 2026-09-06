@@ -31,13 +31,29 @@ services:
     image: "${BACKEND_IMAGE:-ghcr.io/example/telegram-bot-starosta-backend}:${BACK_TAG:-latest}"
     pull_policy: always
     restart: unless-stopped
+    mem_limit: 360m
     env_file:
       - ${PROD_ENV_FILE:-prod.env}
     environment:
+      JAVA_TOOL_OPTIONS: >-
+        -XX:+UseSerialGC
+        -Xms64m
+        -Xmx160m
+        -Xss256k
+        -XX:MaxMetaspaceSize=96m
+        -XX:ReservedCodeCacheSize=24m
+        -XX:MaxDirectMemorySize=16m
+        -XX:+ClassUnloading
+        -XX:+ExitOnOutOfMemoryError
+        -Dspring.jmx.enabled=false
+        -Dspring.main.lazy-initialization=true
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/${POSTGRES_DB}"
       SPRING_DATASOURCE_USERNAME: "${POSTGRES_USER}"
       SPRING_DATASOURCE_PASSWORD: "${POSTGRES_PASSWORD}"
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "1"
+      SERVER_TOMCAT_THREADS_MAX: "10"
     ports:
       - "127.0.0.1:${BACKEND_PORT:-8081}:8081"
     depends_on:
