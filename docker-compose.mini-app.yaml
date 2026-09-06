@@ -1,0 +1,21 @@
+name: starosta-mini-app
+
+services:
+  mini-app:
+    image: "${MINI_APP_IMAGE:-ghcr.io/example/telegram-bot-starosta-mini-app}:${MINI_APP_TAG:-latest}"
+    pull_policy: always
+    restart: unless-stopped
+    env_file:
+      - ${PROD_ENV_FILE:-prod.env}
+    ports:
+      - "127.0.0.1:${MINI_APP_PORT:-3000}:3000"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://localhost:3000/').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
